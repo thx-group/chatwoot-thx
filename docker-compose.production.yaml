@@ -2,7 +2,10 @@ version: '3.8'
 
 services:
   base: &base
-    image: chatwoot/chatwoot:latest
+    build:
+      context: .
+      dockerfile: docker/Dockerfile  
+    image: chatwoot-thx-local:latest
     env_file: .env
     volumes:
       - storage_data:/app/storage
@@ -44,12 +47,11 @@ services:
     environment:
       - POSTGRES_DB=${POSTGRES_DATABASE:-chatwoot}
       - POSTGRES_USER=${POSTGRES_USERNAME:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD} # Puxa direto do .env
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
   redis:
     image: redis:alpine
     restart: always
-    # O comando abaixo agora usa a variável REDIS_PASSWORD do seu .env
     command: ["sh", "-c", "redis-server --requirepass \"$REDIS_PASSWORD\""]
     env_file: .env
     volumes:
