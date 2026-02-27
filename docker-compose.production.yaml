@@ -16,11 +16,13 @@ services:
       - postgres
       - redis
     ports:
-      - '127.0.0.1:3000:3000'
+      # Alterado para 3777 para manter compatibilidade com sua instalação antiga e evitar conflito na 3000
+      - '3777:3000'
     environment:
       - NODE_ENV=${NODE_ENV:-production}
       - RAILS_ENV=${RAILS_ENV:-production}
       - INSTALLATION_ENV=docker
+      - RAILS_SERVE_STATIC_FILES=true
     entrypoint: docker/entrypoints/rails.sh
     command: ['bundle', 'exec', 'rails', 's', '-p', '3000', '-b', '0.0.0.0']
     restart: always
@@ -34,14 +36,14 @@ services:
       - NODE_ENV=${NODE_ENV:-production}
       - RAILS_ENV=${RAILS_ENV:-production}
       - INSTALLATION_ENV=docker
+      - RAILS_SERVE_STATIC_FILES=true
     command: ['bundle', 'exec', 'sidekiq', '-C', 'config/sidekiq.yml']
     restart: always
 
   postgres:
     image: pgvector/pgvector:pg16
     restart: always
-    ports:
-      - '127.0.0.1:5432:5432'
+    # Ports removidas para evitar conflito com outros bancos (Evolution/n8n)
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -52,12 +54,11 @@ services:
   redis:
     image: redis:alpine
     restart: always
+    # Ports removidas para evitar conflito com outros serviços
     command: ["sh", "-c", "redis-server --requirepass \"$REDIS_PASSWORD\""]
     env_file: .env
     volumes:
       - redis_data:/data
-    ports:
-      - '127.0.0.1:6379:6379'
 
 volumes:
   storage_data:
