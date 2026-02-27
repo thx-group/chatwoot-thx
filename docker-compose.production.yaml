@@ -61,5 +61,11 @@ services:
 
 volumes:
   storage_data:
+    external: true
+    name: chatwoot_storage_data
   postgres_data:
+    external: true
+    name: chatwoot_postgres_data
   redis_data:
+    external: true
+    name: chatwoot_redis_data
