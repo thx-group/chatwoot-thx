@@ -18,8 +18,8 @@ services:
     ports:
       - '3777:3000'
     environment:
-      - NODE_ENV=${NODE_ENV:-production}
-      - RAILS_ENV=${RAILS_ENV:-production}
+      - NODE_ENV=production
+      - RAILS_ENV=production
       - INSTALLATION_ENV=docker
       - RAILS_SERVE_STATIC_FILES=true
     entrypoint: docker/entrypoints/rails.sh
