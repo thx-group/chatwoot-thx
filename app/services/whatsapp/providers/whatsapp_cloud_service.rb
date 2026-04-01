@@ -216,14 +216,13 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
   def upload_media(attachment)
     file = attachment.file
 
-    # Normaliza o MIME type para Opus
+    # Normaliza o MIME type para o formato que o WhatsApp aceita
     content_type = if file.content_type == 'audio/opus'
                      'audio/ogg; codecs=opus'
                    else
                      file.content_type
                    end
 
-    # Abre o arquivo (cria um Tempfile) e faz o upload
     media_id = nil
     file.open do |f|
       response = HTTParty.post(
@@ -235,7 +234,8 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
           messaging_product: 'whatsapp',
           file: f,
           type: content_type
-        }
+        },
+        multipart: true
       )
 
       if response.success?
