@@ -58,6 +58,12 @@
           "UPDATE_SUCCESS": "Your Language settings have been updated successfully",
           "UPDATE_ERROR": "There is an error while updating the language settings, please try again",
           "USE_ACCOUNT_DEFAULT": "Use account default"
+        },
+        "APPEARANCE": {
+          "TITLE": "System Appearance",
+          "LIGHT": "Light",
+          "DARK": "Dark",
+          "SECRET_PINK": "Secret Pink 🌸"
         }
       },
       "MESSAGE_SIGNATURE_SECTION": {
