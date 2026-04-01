@@ -69,6 +69,13 @@ export const isFileTypeAllowedForChannel = (file, options = {}) => {
         medium,
       });
 
+  if (
+    originalChannelType === INBOX_TYPES.WHATSAPP &&
+    file.type === 'audio/opus'
+  ) {
+    return true;
+  }
+
   // Convert to array and validate
   const allowedTypesArray = allowedFileTypes.split(',').map(t => t.trim());
   const fileExtension = `.${file.name.split('.').pop()}`;
