@@ -114,19 +114,20 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     process_response(response, message)
   end
 
-  def send_attachment_message(phone_number, message) # rubocop:disable Metrics/MethodLength
+  def send_attachment_message(phone_number, message)
     attachment = message.attachments.first
     return unless validate_whatsapp_attachment!(attachment, message)
 
     type = resolve_whatsapp_attachment_type(attachment)
+
+    attachment.file.blob.update!(content_type: 'audio/ogg') if type == 'audio' && attachment.file.blob.content_type == 'audio/opus'
+
     type_content = {
-      'link': attachment.download_url
+      'link' => attachment.download_url
     }
 
     type_content['caption'] = message.outgoing_content unless %w[audio sticker].include?(type)
-    type_content['filename'] = attachment.file.filename if type == 'document'
-
-    type = 'audio/ogg; codecs=opus' if type == 'audio/opus'
+    type_content['filename'] = attachment.file.filename.to_s if type == 'document'
 
     response = HTTParty.post(
       "#{phone_id_path}/messages",
@@ -134,9 +135,9 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
       body: {
         :messaging_product => 'whatsapp',
         :context => whatsapp_reply_context(message),
-        'to' => phone_number,
-        'type' => type,
-        type.to_s => type_content
+        :to => phone_number,
+        :type => type,
+        type => type_content
       }.to_json
     )
 
@@ -209,5 +210,19 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     )
 
     process_response(response, message)
+  end
+
+  def whatsapp_media_link_for(attachment, type)
+    return attachment.download_url unless type == 'audio'
+
+    normalize_audio_attachment!(attachment)
+    attachment.download_url
+  end
+
+  def normalize_audio_attachment!(attachment)
+    blob = attachment.file.blob
+    return unless blob.content_type == 'audio/opus'
+
+    blob.update!(content_type: 'audio/ogg')
   end
 end
