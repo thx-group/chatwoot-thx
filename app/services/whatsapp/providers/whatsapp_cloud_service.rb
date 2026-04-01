@@ -125,6 +125,9 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
 
     type_content['caption'] = message.outgoing_content unless %w[audio sticker].include?(type)
     type_content['filename'] = attachment.file.filename if type == 'document'
+
+    type = 'audio/ogg; codecs=opus' if type == 'audio/opus'
+
     response = HTTParty.post(
       "#{phone_id_path}/messages",
       headers: api_headers,
