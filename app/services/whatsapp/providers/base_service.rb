@@ -12,7 +12,7 @@ class Whatsapp::Providers::BaseService
   # Supported MIME types per WhatsApp media category
   # Reference: https://developers.facebook.com/docs/whatsapp/cloud-api/reference/media#supported-media-types
   WHATSAPP_SUPPORTED_IMAGE_TYPES = %w[image/jpeg image/png].freeze
-  WHATSAPP_SUPPORTED_AUDIO_TYPES = %w[audio/aac audio/mp4 audio/mpeg audio/amr audio/ogg].freeze
+  WHATSAPP_SUPPORTED_AUDIO_TYPES = %w[audio/aac audio/mp4 audio/mpeg audio/amr audio/ogg audio/opus].freeze
   WHATSAPP_SUPPORTED_VIDEO_TYPES = %w[video/mp4 video/3gp video/3gpp].freeze
   WHATSAPP_SUPPORTED_STICKER_TYPES = %w[image/webp].freeze
   WHATSAPP_SUPPORTED_DOCUMENT_TYPES = %w[
