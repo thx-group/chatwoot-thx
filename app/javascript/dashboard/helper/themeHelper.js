@@ -8,7 +8,7 @@ export const setColorTheme = isOSOnDarkMode => {
   // 1. Limpeza de estados anteriores
   document.body.classList.remove('dark');
   document.body.removeAttribute('data-theme');
-  
+
   // 2. Lógica de aplicação do tema
   if (selectedColorScheme === 'secret') {
     // Aplica o tema rosa do Dia das Mulheres

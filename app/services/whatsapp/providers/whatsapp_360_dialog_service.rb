@@ -73,7 +73,9 @@ class Whatsapp::Providers::Whatsapp360DialogService < Whatsapp::Providers::BaseS
 
   def send_attachment_message(phone_number, message)
     attachment = message.attachments.first
-    type = %w[image audio video].include?(attachment.file_type) ? attachment.file_type : 'document'
+    return unless validate_whatsapp_attachment!(attachment, message)
+
+    type = resolve_whatsapp_attachment_type(attachment)
     type_content = {
       'link': attachment.download_url
     }
