@@ -118,20 +118,26 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     attachment = message.attachments.first
     return unless validate_whatsapp_attachment!(attachment, message)
 
+    # Upload para WhatsApp e obtém o media_id
+    media_id = upload_media(attachment)
+    unless media_id
+      message.update!(status: :failed, external_error: 'Failed to upload media to WhatsApp')
+      return
+    end
+
     type = resolve_whatsapp_attachment_type(attachment)
-    type_content = {
-      'link': attachment.download_url
-    }
+    type_content = { 'id': media_id }
     type_content['caption'] = message.outgoing_content unless %w[audio sticker].include?(type)
     type_content['filename'] = attachment.file.filename if type == 'document'
+
     response = HTTParty.post(
       "#{phone_id_path}/messages",
       headers: api_headers,
       body: {
         :messaging_product => 'whatsapp',
         :context => whatsapp_reply_context(message),
-        'to' => phone_number,
-        'type' => type,
+        :to => phone_number,
+        :type => type,
         type.to_s => type_content
       }.to_json
     )
@@ -205,5 +211,36 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     )
 
     process_response(response, message)
+  end
+
+  # Upload media to WhatsApp and return media ID
+  def upload_media(attachment)
+    file = attachment.file
+    # Força o MIME type correto para OGG Opus
+    content_type = if file.content_type == 'audio/opus'
+                     'audio/ogg; codecs=opus'
+                   else
+                     file.content_type
+                   end
+
+    response = HTTParty.post(
+      "#{api_base_path}/v13.0/#{whatsapp_channel.provider_config['phone_number_id']}/media",
+      headers: {
+        'Authorization' => "Bearer #{whatsapp_channel.provider_config['api_key']}",
+        'Content-Type' => 'multipart/form-data'
+      },
+      body: {
+        messaging_product: 'whatsapp',
+        file: File.new(file.path),
+        type: content_type
+      }
+    )
+
+    if response.success?
+      response.parsed_response['id']
+    else
+      Rails.logger.error "WhatsApp media upload failed: #{response.body}"
+      nil
+    end
   end
 end
